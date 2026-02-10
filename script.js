@@ -8,7 +8,7 @@ const FEEDS = {
     { name: 'Bitcoin Magazine', url: 'https://bitcoinmagazine.com/feed/', icon: '📒' },
   ],
   ethereum: [
-    { name: 'CoinTelegraph ETH', url: 'https://cointelegraph.com/tags/ethereum/rss', icon: '🔷' },
+    // No specific feeds – will be classified from general crypto feeds via keywords
   ],
   trump: [
     { name: 'NYT Politics', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml', icon: '🗽' },
