@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📈 Cripto & Global News Dashboard</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neon: {
+              blue: '#00f0ff',
+              purple: '#a855f7',
+              green: '#10b981',
+              pink: '#ec4899',
+            },
+            dark: {
+              900: '#0a0a0f',
+              800: '#111118',
+              700: '#1a1a24',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0a0a0f;
+      color: #e5e7eb;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .neon-text {
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #1a1a24 25%, #2a2a34 50%, #1a1a24 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .badge-bullish { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-bearish { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-neutral { background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); }
+  </style>
+</head>
+<body class="min-h-screen bg-dark-900">
+  <div id="app" class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Header -->
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-2 neon-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink bg-clip-text text-transparent">
+        📈 Cripto & Global News
+      </h1>
+      <p class="text-gray-400 text-lg">Notícias em tempo real · Atualizado <span id="lastUpdate" class="text-neon-blue font-mono">--:--</span></p>
+      <div class="mt-4 flex justify-center gap-4 flex-wrap">
+        <button onclick="refreshAll()" class="px-4 py-2 bg-neon-blue/20 border border-neon-blue/50 rounded-lg hover:bg-neon-blue/30 transition text-neon-blue">
+          🔄 Atualizar agora
+        </button>
+        <button onclick="toggleAutoRefresh()" id="autoBtn" class="px-4 py-2 bg-neon-purple/20 border border-neon-purple/50 rounded-lg hover:bg-neon-purple/30 transition text-neon-purple">
+          ⏸️ Auto: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
+        <div class="text-gray-400 text-sm">Feed cripto</div>
+        <div class="text-2xl font-bold text-neon-blue" id="countCrypto">0</div>
+      </div>
+      <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
+        <div class="text-gray-400 text-sm">Feed global</div>
+        <div class="text-2xl font-bold text-neon-purple" id="countGlobal">0</div>
+      </div>
+      <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
+        <div class="text-gray-400 text-sm">Última att.</div>
+        <div class="text-lg font-mono text-neon-green" id="timeSince">--:--</div>
+      </div>
+      <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
+        <div class="text-gray-400 text-sm">Status</div>
+        <div class="text-lg font-bold text-neon-pink" id="status">🟢 Online</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-dark-700 pb-2">
+      <button class="tab-btn active px-4 py-2 rounded-t-lg font-semibold transition" data-tab="all">Todas</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="crypto">Cripto</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="global">Economia/Mundo</button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div id="loading" class="hidden">
+      <div class="skeleton h-32 rounded-xl mb-4"></div>
+      <div class="skeleton h-32 rounded-xl mb-4"></div>
+      <div class="skeleton h-32 rounded-xl mb-4"></div>
+    </div>
+
+    <!-- News grid -->
+    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- As notícias serão injetadas aqui via JS -->
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="text-6xl mb-4">🤔</div>
+      <h3 class="text-xl font-bold text-gray-300 mb-2">Nenhuma notícia encontrada</h3>
+      <p class="text-gray-500">Tente atualizar ou verifique as fontes RSS.</p>
+    </div>
+  </div>
+
+  <footer class="text-center py-8 text-gray-500 text-sm mt-12 border-t border-dark-800">
+    Feito com ❤️ por EmilIA · Dados de RSS públicos
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

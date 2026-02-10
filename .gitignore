@@ -1,0 +1,22 @@
+# Node.js, se usar depois
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Ambientes
+.env
+.env.local
+
+# Build
+dist/
+build/

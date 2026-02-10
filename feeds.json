@@ -1,0 +1,14 @@
+{
+  "crypto": [
+    { "name": "CoinDesk", "url": "https://www.coindesk.com/arc/outboundfeeds/rss/", "icon": "🟡" },
+    { "name": "Cointelegraph", "url": "https://cointelegraph.com/rss", "icon": "🔵" },
+    { "name": "CryptoSlate", "url": "https://cryptoslate.com/feed/", "icon": "🟣" },
+    { "name": "Decrypt", "url": "https://decrypt.co/feed", "icon": "⚡" }
+  ],
+  "global": [
+    { "name": "Bloomberg", "url": "https://www.bloomberg.com/feed/podcast/etf-report.xml", "icon": "🏙️" },
+    { "name": "Reuters", "url": "https://www.reutersagency.com/feed/", "icon": "📰" },
+    { "name": "Yahoo Finance", "url": "https://finance.yahoo.com/news/rssindex", "icon": "💹" },
+    { "name": "Google Negócios", "url": "https://news.google.com/rss?output=atom&hl=pt-BR&gl=BR&ceid=BR:pt-419&topic=B", "icon": "🌍" }
+  ]
+}
