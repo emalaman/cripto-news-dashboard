@@ -203,7 +203,13 @@ function determineCategory(title, feed, defaultCategory) {
     }
   }
   
-  // Priority 2: Keyword matching
+  // Priority 2: Direct Ethereum/ETH detection (most reliable)
+  if (lower.includes('ethereum') || lower.includes(' eth ') || lower.startsWith('eth ') || lower.endsWith(' eth') || lower.includes(' eth,') || lower.includes(' eth.')) {
+    console.log(`[Category] Title "${title.substring(0, 50)}..." -> ethereum (direct match)`);
+    return 'ethereum';
+  }
+  
+  // Priority 3: Keyword matching
   const keywords = {
     bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner', 'bitcoin price', 'btc price', 'bitcoin mining', 'bitcoin halving', 'bitcoin etf', 'spot bitcoin'],
     ethereum: [
@@ -281,6 +287,7 @@ function determineCategory(title, feed, defaultCategory) {
 }
 
 function someWordInText(words, text) {
+  // Case-insensitive, but text is already lowercase from caller
   return words.some(w => text.includes(w));
 }
 
