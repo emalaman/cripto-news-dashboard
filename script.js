@@ -1,9 +1,6 @@
 // Cripto & Global News Dashboard
 // Feito por EmilIA 🌀
 
-// Cripto & Global News Dashboard
-// Feito por EmilIA 🌀
-
 // Feeds funcionais (testados com rss2json)
 const FEEDS = {
   bitcoin: [
@@ -14,13 +11,17 @@ const FEEDS = {
     { name: 'CoinTelegraph ETH', url: 'https://cointelegraph.com/tags/ethereum/rss', icon: '🔷' },
   ],
   trump: [
-    // Usaremos classificação por palavras-chave a partir de feeds gerais
+    { name: 'NYT Politics', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml', icon: '🗽' },
+    { name: 'Washington Post', url: 'https://feeds.washingtonpost.com/rss/politics', icon: '📰' },
+    { name: 'The Guardian US Politics', url: 'https://www.theguardian.com/us-news/us-politics/rss', icon: '🇺🇸' },
+    { name: 'NPR Politics', url: 'https://feeds.npr.org/1001/rss.xml', icon: '📻' },
+    { name: 'BBC News US & Canada', url: 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml', icon: '🌐' },
   ],
   polymarket: [
-    // Usaremos classificação por palavras-chave
+    // Classificação via palavras-chave
   ],
   kalshi: [
-    // Usaremos classificação por palavras-chave
+    // Classificação via palavras-chave
   ],
   crypto: [
     { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', icon: '🟡' },
@@ -69,7 +70,6 @@ async function refreshAll() {
     const promises = [];
     feedStats = {};
     
-    // Build promises for all feeds across all categories
     for (const cat of categories) {
       if (FEEDS[cat]) {
         FEEDS[cat].forEach(feed => {
@@ -84,7 +84,6 @@ async function refreshAll() {
     
     console.log(`Fetched ${allNews.length} raw items before dedup`);
 
-    // Remove duplicates by title (approximate)
     const unique = [];
     const seen = new Set();
     for (const item of allNews) {
@@ -114,7 +113,7 @@ async function refreshAll() {
 async function fetchFeed(feed, defaultCategory) {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     
     const response = await fetch(`${RSE_PROXY}${encodeURIComponent(feed.url)}`, {
       signal: controller.signal
@@ -143,17 +142,17 @@ async function fetchFeed(feed, defaultCategory) {
       const category = determineCategory(title, feed, defaultCategory);
       
       return {
-        title: title,
+        title,
         link: item.link || '#',
         pubDate: item.pubDate || new Date().toISOString(),
         description: stripHtml(item.description || item.contentSnippet || '').substring(0, 200) + (item.description || item.contentSnippet ? '...' : ''),
         author: item.author || feed.name,
         source: feed.name,
         icon: feed.icon || getIconForCategory(category),
-        category: category,
+        category,
         sentiment: detectSentiment(title)
       };
-    }).filter(item => item.title); // remove empty titles
+    }).filter(item => item.title);
   } catch (e) {
     console.warn(`Falha no feed ${feed.name}:`, e.message);
     return [];
@@ -163,55 +162,44 @@ async function fetchFeed(feed, defaultCategory) {
 function determineCategory(title, feed, defaultCategory) {
   const lower = title.toLowerCase();
   
-  // Se o feed já tem categoryFilter definido
   if (feed.categoryFilter) return feed.categoryFilter;
   
-  // Palavras-chave expandidas por categoria
-  const keywords = {
-    bitcoin: [
-      'bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 
-      'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner'
-    ],
-    ethereum: [
-      'ethereum', 'eth', 'vitalik', 'gas fee', 'defi', 'layer2', 'layer 2', 
-      'rollup', 'zk', 'zero knowledge', 'eip', 'evm', 'ether', 'eth2'
-    ],
-    trump: [
-      'trump', 'donald', 'gop', 'republican', 'maga', 'presidente', 
-      'casa branca', 'eleição 2024', 'donald j trump', 'trump campaign'
-    ],
-    polymarket: [
-      'polymarket', 'polygon', 'matic', 'prediction', 'aposta', 'mercado de previsão',
-      'prediction market', 'polymarkets', 'polygon labs', 'matic network'
-    ],
-    kalshi: [
-      'kalshi', 'event trading', 'mercado de eventos', 'kalshi markets',
-      'trading de eventos', 'event derivatives', 'event futures'
-    ],
-    crypto: [
-      'crypto', 'blockchain', 'altcoin', 'web3', 'nft', 'token', 'decentralized',
-      'centralized exchange', 'cex', 'dex', 'dao', 'smart contract', 'web 3',
-      'cripto', 'criptomoeda', 'altcoins', 'stablecoin', 'usdt', 'usdc'
-    ],
-    global: [] // default
-  };
-  
-  // Checa cada categoria (exceto a default) para ver se bate
-  for (const [cat, words] of Object.entries(keywords)) {
-    if (cat === defaultCategory) continue;
-    if (words.some(w => lower.includes(w))) return cat;
+  for (const [cat, feeds] of Object.entries(FEEDS)) {
+    if (feeds && feeds.includes(feed)) return cat;
   }
   
-  // Se no feed já tem pista pela URL ou nome
+  const keywords = {
+    bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner', 'bitcoin price', 'btc price', 'bitcoin mining', 'bitcoin halving'],
+    ethereum: ['ethereum', 'eth', 'vitalik', 'gas fee', 'defi', 'layer2', 'layer 2', 'rollup', 'zk', 'zero knowledge', 'eip', 'evm', 'ether', 'eth2', 'ethereum price', 'eth price', 'ethereum 2.0', 'merge'],
+    trump: ['trump', 'donald', 'gop', 'republican', 'maga', 'presidente', 'casa branca', 'eleição 2024', 'donald j trump', 'trump campaign', 'president trump', 'trump administration', 'trump news', 'former president', 'republican party', 'gop party', 'conservative', 'right wing', 'immigration', 'border wall', 'tariffs', 'trade war'],
+    polymarket: ['polymarket', 'polygon', 'matic', 'prediction', 'aposta', 'mercado de previsão', 'prediction market', 'polymarkets', 'polygon labs', 'matic network', 'betting market', 'event betting', 'prediction platform'],
+    kalshi: ['kalshi', 'event trading', 'mercado de eventos', 'kalshi markets', 'trading de eventos', 'event derivatives', 'event futures', 'kalshi exchange', 'regulated prediction'],
+    crypto: ['crypto', 'blockchain', 'altcoin', 'web3', 'nft', 'token', 'decentralized', 'centralized exchange', 'cex', 'dex', 'dao', 'smart contract', 'web 3', 'cripto', 'criptomoeda', 'altcoins', 'stablecoin', 'usdt', 'usdc', 'solana', 'cardano', 'polkadot', 'xrp', 'doge', 'shiba', 'memecoin'],
+    global: [] 
+  };
+  
+  for (const [cat, words] of Object.entries(keywords)) {
+    if (cat === defaultCategory) continue;
+    if (someWordInText(words, lower)) return cat;
+  }
+  
+  // Feed source hints
   if (feed.name.toLowerCase().includes('bitcoin') || feed.url.includes('bitcoin')) return 'bitcoin';
   if (feed.name.toLowerCase().includes('ethereum') || feed.url.includes('ethereum') || feed.url.includes('eth')) return 'ethereum';
-  if (feed.name.toLowerCase().includes('trump') || feed.url.includes('trump') || feed.name.toLowerCase().includes('politic')) return 'trump';
+  if (feed.name.toLowerCase().includes('trump') || feed.url.includes('trump') || 
+      feed.name.toLowerCase().includes('nytimes') || feed.name.toLowerCase().includes('washington') || 
+      feed.name.toLowerCase().includes('guardian') || feed.name.toLowerCase().includes('npr') || 
+      feed.name.toLowerCase().includes('bbc') || feed.name.toLowerCase().includes('politic')) return 'trump';
   if (feed.name.toLowerCase().includes('polygon') || feed.url.includes('polygon') || feed.name.toLowerCase().includes('prediction')) return 'polymarket';
   if (feed.name.toLowerCase().includes('kalshi') || feed.url.includes('kalshi') || feed.name.toLowerCase().includes('event')) return 'kalshi';
   if (feed.name.toLowerCase().includes('coindesk') || feed.name.toLowerCase().includes('cointelegraph') || feed.name.toLowerCase().includes('crypto')) return 'crypto';
-  if (feed.name.toLowerCase().includes('bloomberg') || feed.name.toLowerCase().includes('reuters') || feed.name.toLowerCase().includes('yahoo') || feed.name.toLowerCase().includes('google')) return 'global';
+  if (feed.name.toLowerCase().includes('yahoo')) return 'global';
   
   return defaultCategory;
+}
+
+function someWordInText(words, text) {
+  return words.some(w => text.includes(w));
 }
 
 function getIconForCategory(category) {
@@ -261,7 +249,7 @@ function renderNews(filter) {
   }
   empty.classList.add('hidden');
 
-  filtered.forEach((news, idx) => {
+  filtered.forEach((news) => {
     const card = document.createElement('article');
     card.className = 'bg-dark-800 rounded-xl p-5 border border-dark-700 card-hover cursor-pointer';
     card.onclick = () => window.open(news.link, '_blank');
@@ -296,13 +284,13 @@ function renderNews(filter) {
 
 function highlightKeywords(text, category) {
   const categoryKeywords = {
-    bitcoin: ['Bitcoin', 'BTC', 'Satoshi', 'Lightning', 'Halving', '₿', 'Block reward'],
-    ethereum: ['Ethereum', 'ETH', 'Vitalik', 'Gas', 'DeFi', 'EVM', 'Layer 2', 'Rollup', 'ZK'],
-    trump: ['Trump', 'Donald Trump', 'GOP', 'Republican', 'MAGA', 'President', 'Election'],
-    polymarket: ['Polymarket', 'Polygon', 'MATIC', 'Prediction', 'Market', 'Augur'],
+    bitcoin: ['Bitcoin', 'BTC', 'Satoshi', 'Lightning', 'Halving', '₿', 'Block reward', 'SegWit', 'Taproot', 'Miner'],
+    ethereum: ['Ethereum', 'ETH', 'Vitalik', 'Gas', 'DeFi', 'EVM', 'Layer 2', 'Rollup', 'ZK', 'EIP', 'Merge'],
+    trump: ['Trump', 'Donald Trump', 'GOP', 'Republican', 'MAGA', 'President', 'Election', 'White House', 'Immigration', 'Border', 'Tariff'],
+    polymarket: ['Polymarket', 'Polygon', 'MATIC', 'Prediction', 'Market', 'Betting'],
     kalshi: ['Kalshi', 'Event', 'Trading', 'Derivatives', 'Prediction', 'Market'],
-    crypto: ['Crypto', 'Blockchain', 'Altcoin', 'Web3', 'NFT', 'Token', 'DeFi', 'DAO', 'Smart contract', 'Web 3', 'Stablecoin'],
-    global: ['Economy', 'Market', 'Stock', 'Inflation', 'Fed', 'Central bank', 'GDP', 'Recession']
+    crypto: ['Crypto', 'Blockchain', 'Altcoin', 'Web3', 'NFT', 'Token', 'DeFi', 'DAO', 'Smart contract', 'Stablecoin', 'Solana', 'Cardano', 'Polkadot', 'XRP', 'Doge'],
+    global: ['Economy', 'Market', 'Stock', 'Inflation', 'Fed', 'Central bank', 'GDP', 'Recession', 'Finance']
   };
   
   const keywords = categoryKeywords[category] || categoryKeywords.crypto;
@@ -372,9 +360,7 @@ function setupTabs() {
       renderNews(btn.dataset.tab);
     });
   });
-  // Set initial active
   buttons[0].classList.add('bg-dark-800', 'text-white', 'border-t', 'border-neon-blue', 'active');
 }
 
-// Inicialização
 document.addEventListener('DOMContentLoaded', init);
