@@ -163,10 +163,13 @@ async function fetchFeed(feed, defaultCategory) {
     }
     
     if (!Array.isArray(data.items) || data.items.length === 0) {
+      console.log(`[Feed] ${feed.name}: 0 items`);
       return [];
     }
     
-    return data.items.map(item => {
+    console.log(`[Feed] ${feed.name}: ${data.items.length} items fetched`);
+    
+    const mapped = data.items.map(item => {
       const title = item.title || '';
       const category = determineCategory(title, feed, defaultCategory);
       
@@ -182,6 +185,11 @@ async function fetchFeed(feed, defaultCategory) {
         sentiment: detectSentiment(title)
       };
     }).filter(item => item.title);
+    
+    console.log(`[Feed] ${feed.name}: ${mapped.length} items after mapping, category dist:`, 
+      mapped.reduce((acc, item) => { acc[item.category] = (acc[item.category]||0)+1; return acc; }, {}));
+    
+    return mapped;
   } catch (e) {
     console.warn(`Falha no feed ${feed.name}:`, e.message);
     return [];
@@ -193,10 +201,15 @@ function determineCategory(title, feed, defaultCategory) {
   
   if (feed.categoryFilter) return feed.categoryFilter;
   
-  for (const [cat, feeds] of Object.entries(FEEDS)) {
-    if (feeds && feeds.includes(feed)) return cat;
+  // Priority 1: Feed belongs to a specific category list
+  for (const [cat, feedsList] of Object.entries(FEEDS)) {
+    if (Array.isArray(feedsList) && feedsList.includes(feed)) {
+      console.log(`[Category] Feed ${feed.name} -> ${cat} (by feed membership)`);
+      return cat;
+    }
   }
   
+  // Priority 2: Keyword matching
   const keywords = {
     bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner', 'bitcoin price', 'btc price', 'bitcoin mining', 'bitcoin halving'],
     ethereum: ['ethereum', 'eth', 'vitalik', 'gas fee', 'defi', 'layer2', 'layer 2', 'rollup', 'zk', 'zero knowledge', 'eip', 'evm', 'ether', 'eth2', 'ethereum price', 'eth price', 'ethereum 2.0', 'merge'],
@@ -209,7 +222,10 @@ function determineCategory(title, feed, defaultCategory) {
   
   for (const [cat, words] of Object.entries(keywords)) {
     if (cat === defaultCategory) continue;
-    if (someWordInText(words, lower)) return cat;
+    if (someWordInText(words, lower)) {
+      console.log(`[Category] Title "${title.substring(0, 50)}..." -> ${cat} (by keywords)`);
+      return cat;
+    }
   }
   
   // Feed source hints
@@ -218,12 +234,16 @@ function determineCategory(title, feed, defaultCategory) {
   if (feed.name.toLowerCase().includes('trump') || feed.url.includes('trump') || 
       feed.name.toLowerCase().includes('nytimes') || feed.name.toLowerCase().includes('washington') || 
       feed.name.toLowerCase().includes('guardian') || feed.name.toLowerCase().includes('npr') || 
-      feed.name.toLowerCase().includes('bbc') || feed.name.toLowerCase().includes('politic')) return 'trump';
+      feed.name.toLowerCase().includes('bbc') || feed.name.toLowerCase().includes('politic')) {
+    console.log(`[Category] Feed ${feed.name} -> trump (by source hint)`);
+    return 'trump';
+  }
   if (feed.name.toLowerCase().includes('polygon') || feed.url.includes('polygon') || feed.name.toLowerCase().includes('prediction')) return 'polymarket';
   if (feed.name.toLowerCase().includes('kalshi') || feed.url.includes('kalshi') || feed.name.toLowerCase().includes('event')) return 'kalshi';
   if (feed.name.toLowerCase().includes('coindesk') || feed.name.toLowerCase().includes('cointelegraph') || feed.name.toLowerCase().includes('crypto')) return 'crypto';
   if (feed.name.toLowerCase().includes('yahoo')) return 'global';
   
+  console.log(`[Category] Title "${title.substring(0, 50)}..." -> ${defaultCategory} (default)`);
   return defaultCategory;
 }
 
