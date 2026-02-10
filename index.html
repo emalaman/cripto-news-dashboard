@@ -90,16 +90,16 @@
     <!-- Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
       <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
-        <div class="text-gray-400 text-sm">Feed cripto</div>
-        <div class="text-2xl font-bold text-neon-blue" id="countCrypto">0</div>
+        <div class="text-gray-400 text-sm">Bitcoin</div>
+        <div class="text-2xl font-bold text-neon-blue" id="countBitcoin">0</div>
       </div>
       <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
-        <div class="text-gray-400 text-sm">Feed global</div>
-        <div class="text-2xl font-bold text-neon-purple" id="countGlobal">0</div>
+        <div class="text-gray-400 text-sm">Ethereum</div>
+        <div class="text-2xl font-bold text-neon-blue" id="countEthereum">0</div>
       </div>
       <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
-        <div class="text-gray-400 text-sm">Última att.</div>
-        <div class="text-lg font-mono text-neon-green" id="timeSince">--:--</div>
+        <div class="text-gray-400 text-sm">Atualizado</div>
+        <div class="text-lg font-mono text-neon-green" id="lastUpdate">--:--</div>
       </div>
       <div class="bg-dark-800 p-4 rounded-xl border border-dark-700">
         <div class="text-gray-400 text-sm">Status</div>
@@ -109,9 +109,14 @@
 
     <!-- Tabs -->
     <div class="flex flex-wrap gap-2 mb-6 border-b border-dark-700 pb-2">
-      <button class="tab-btn active px-4 py-2 rounded-t-lg font-semibold transition" data-tab="all">Todas</button>
-      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="crypto">Cripto</button>
-      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="global">Economia/Mundo</button>
+      <button class="tab-btn active px-4 py-2 rounded-t-lg font-semibold transition" data-tab="all">🌟 Todas</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="bitcoin">₿ Bitcoin</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="ethereum">🔷 Ethereum</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="trump">🇺🇸 Trump</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="polymarket">🎯 Polymarket</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="kalshi">📊 Kalshi</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="crypto">💎 Cripto</button>
+      <button class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-400 hover:text-white transition" data-tab="global">🌍 Mundo</button>
     </div>
 
     <!-- Loading skeleton -->

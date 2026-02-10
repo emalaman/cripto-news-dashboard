@@ -1,7 +1,30 @@
 // Cripto & Global News Dashboard
 // Feito por EmilIA 🌀
 
+// Fontes por categoria
 const FEEDS = {
+  bitcoin: [
+    { name: 'Bitcoin.com News', url: 'https://news.bitcoin.com/feed/', icon: '₿' },
+    { name: 'CoinDesk Bitcoin', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', categoryFilter: 'bitcoin' },
+    { name: 'BTCC', url: 'https://btcc.com/feed', icon: '🟡' },
+  ],
+  ethereum: [
+    { name: 'Ethereum.org Blog', url: 'https://blog.ethereum.org/feed', icon: '🔷' },
+    { name: 'Cointelegraph ETH', url: 'https://cointelegraph.com/tags/ethereum/rss', icon: '🔵' },
+    { name: 'Etherscan Feed', url: 'https://etherscan.io/feed/latestcontent.xml', icon: '🐍' },
+  ],
+  trump: [
+    { name: 'Trump Feed', url: 'https://www.trump.news/feed', icon: '🇺🇸' },
+    { name: 'Politics RSS', url: 'https://www.politico.com/rss/politico.xml', categoryKeywords: ['trump', 'donald trump', 'gop', 'republican'] },
+  ],
+  polymarket: [
+    { name: 'Polymarket Blog', url: 'https://polymarket.com/feed', icon: '🎯' },
+    { name: 'Polygon News', url: 'https://polygon.technology/feed', icon: '🔺' },
+  ],
+  kalshi: [
+    { name: 'Kalshi Blog', url: 'https://kalshi.com/feed', icon: '📊' },
+    { name: 'Prediction Markets', url: 'https://www.predictionmarkets.com/rss', icon: '🔮' },
+  ],
   crypto: [
     { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', icon: '🟡' },
     { name: 'Cointelegraph', url: 'https://cointelegraph.com/rss', icon: '🔵' },
@@ -20,6 +43,7 @@ const RSE_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
 let autoRefresh = true;
 let refreshInterval;
 let allNews = [];
+let feedStats = {};
 
 function init() {
   setupTabs();
@@ -31,7 +55,7 @@ function startAutoRefresh() {
   clearInterval(refreshInterval);
   refreshInterval = setInterval(() => {
     if (autoRefresh) refreshAll();
-  }, 30 * 60 * 1000); // 30 minutos
+  }, 5 * 60 * 1000); // 5 minutos
 }
 
 function toggleAutoRefresh() {
@@ -47,14 +71,14 @@ async function refreshAll() {
   document.getElementById('status').textContent = '🔄 Buscando...';
   
   try {
+    const categories = ['bitcoin', 'ethereum', 'trump', 'polymarket', 'kalshi', 'crypto', 'global'];
     const promises = [];
-    // Crypto feeds
-    FEEDS.crypto.forEach(feed => {
-      promises.push(fetchFeed(feed));
-    });
-    // Global feeds
-    FEEDS.global.forEach(feed => {
-      promises.push(fetchFeed(feed));
+    feedStats = {};
+    
+    categories.forEach(cat => {
+      FEEDS[cat].forEach(feed => {
+        promises.push(fetchFeed(feed, cat));
+      });
     });
 
     const results = await Promise.all(promises);
@@ -84,32 +108,71 @@ async function refreshAll() {
   }
 }
 
-async function fetchFeed(feed) {
+async function fetchFeed(feed, defaultCategory) {
   try {
     const response = await fetch(`${RSE_PROXY}${encodeURIComponent(feed.url)}`);
     const data = await response.json();
     if (data.status !== 'ok') return [];
     
-    return data.items.map(item => ({
-      title: item.title,
-      link: item.link,
-      pubDate: item.pubDate,
-      description: stripHtml(item.description || item.contentSnippet || '').substring(0, 200) + '...',
-      author: item.author || feed.name,
-      source: feed.name,
-      icon: feed.icon,
-      category: isCryptoFeed(feed) ? 'crypto' : 'global',
-      // Simple bullish/bearish detection
-      sentiment: detectSentiment(item.title)
-    }));
+    return data.items.map(item => {
+      const title = item.title;
+      const category = determineCategory(title, feed, defaultCategory);
+      
+      return {
+        title: title,
+        link: item.link,
+        pubDate: item.pubDate,
+        description: stripHtml(item.description || item.contentSnippet || '').substring(0, 200) + '...',
+        author: item.author || feed.name,
+        source: feed.name,
+        icon: feed.icon || getIconForCategory(category),
+        category: category,
+        sentiment: detectSentiment(title)
+      };
+    });
   } catch (e) {
     console.warn(`Falha no feed ${feed.name}:`, e);
     return [];
   }
 }
 
-function isCryptoFeed(feed) {
-  return FEEDS.crypto.includes(feed);
+function determineCategory(title, feed, defaultCategory) {
+  const lower = title.toLowerCase();
+  
+  // Se o feed já tem categoryFilter definido
+  if (feed.categoryFilter) return feed.categoryFilter;
+  
+  // Palavras-chave por categoria
+  const keywords = {
+    bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning'],
+    ethereum: ['ethereum', 'eth', 'vitalik', 'gas fee', 'defi'],
+    trump: ['trump', 'donald', 'gop', 'republican', 'maga'],
+    polymarket: ['polymarket', 'polygon', 'matic', 'market prediction'],
+    kalshi: ['kalshi', 'kalshi markets', 'event trading'],
+    crypto: ['crypto', 'blockchain', 'altcoin', 'web3', 'nft'],
+    global: [] // default
+  };
+  
+  // Checa cada categoria
+  for (const [cat, words] of Object.entries(keywords)) {
+    if (cat === defaultCategory) continue; // já é a padrão
+    if (words.some(w => lower.includes(w))) return cat;
+  }
+  
+  return defaultCategory;
+}
+
+function getIconForCategory(category) {
+  const icons = {
+    bitcoin: '₿',
+    ethereum: '🔷',
+    trump: '🇺🇸',
+    polymarket: '🎯',
+    kalshi: '📊',
+    crypto: '💎',
+    global: '🌍'
+  };
+  return icons[category] || '📰';
 }
 
 function detectSentiment(title) {
@@ -167,7 +230,7 @@ function renderNews(filter) {
         </div>
         <span class="badge ${sentimentClass}">${sentimentLabel}</span>
       </div>
-      <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 leading-tight">${highlightKeywords(news.title)}</h3>
+      <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 leading-tight">${highlightKeywords(news.title, news.category)}</h3>
       <p class="text-gray-400 text-sm mb-4 line-clamp-3">${news.description}</p>
       <div class="flex items-center justify-between text-xs text-gray-500">
         <span>⏱️ ${timeAgo}</span>
@@ -179,13 +242,24 @@ function renderNews(filter) {
   });
 }
 
-function highlightKeywords(text) {
-  // Destaca palavras-chave de cripto
-  const keywords = ['Bitcoin', 'Ethereum', 'BTC', 'ETH', 'crypto', 'blockchain', ' DeFi', 'NFT', 'altcoin'];
+function highlightKeywords(text, category) {
+  const categoryKeywords = {
+    bitcoin: ['Bitcoin', 'BTC', 'Satoshi', 'Lightning'],
+    ethereum: ['Ethereum', 'ETH', 'Vitalik', 'Gas', 'DeFi'],
+    trump: ['Trump', 'Donald Trump', 'GOP', 'Republican', 'MAGA'],
+    polymarket: ['Polymarket', 'Polygon', 'MATIC', 'Prediction'],
+    kalshi: ['Kalshi', 'Event Trading', 'Markets'],
+    crypto: ['crypto', 'blockchain', 'altcoin', 'Web3', 'NFT', 'Token'],
+    global: ['economy', 'market', 'stock', 'inflation', 'Fed']
+  };
+  
+  const keywords = categoryKeywords[category] || categoryKeywords.crypto;
+  
   keywords.forEach(kw => {
     const regex = new RegExp(`(${kw})`, 'gi');
     text = text.replace(regex, '<span class="text-neon-blue font-semibold">$1</span>');
   });
+  
   return text;
 }
 
@@ -207,17 +281,24 @@ function getTimeAgo(date) {
 }
 
 function updateStats() {
-  const cryptoCount = allNews.filter(n => n.category === 'crypto').length;
-  const globalCount = allNews.filter(n => n.category === 'global').length;
-  document.getElementById('countCrypto').textContent = cryptoCount;
-  document.getElementById('countGlobal').textContent = globalCount;
+  const categories = ['bitcoin', 'ethereum', 'trump', 'polymarket', 'kalshi', 'crypto', 'global'];
+  categories.forEach(cat => {
+    const el = document.getElementById(`count${capitalize(cat)}`);
+    if (el) {
+      const count = allNews.filter(n => n.category === cat).length;
+      el.textContent = count;
+    }
+  });
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function updateTimestamp() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   document.getElementById('lastUpdate').textContent = timeStr;
-  document.getElementById('timeSince').textContent = 'agora';
 }
 
 function setLoading(loading) {

@@ -1,6 +1,6 @@
 # Cripto & Global News Dashboard
 
- Dashboard em tempo real com notícias de criptomoedas, economia e mundo.
+ Dashboard em tempo real com notícias de criptomoedas, política, mercados e mundo.
 
 ## Como usar
 
@@ -10,27 +10,28 @@
 
 ## Funcionalidades
 
-- **Notícias de Cripto:** CoinDesk, Cointelegraph, CryptoSlate
-- **Notícias de Economia/Mundo:** Bloomberg, Reuters (via Google News)
+- **Notícias categorizadas:** Bitcoin, Ethereum, Trump, Polymarket, Kalshi, Cripto (geral), Mundo/Economia
+- **Fontes RSS múltiplas** por categoria
 - **Design Dark + Neon** (tema cripto)
-- **Auto-atualização** a cada 30 minutos
-- **Mobile-friendly**
+- **Auto-atualização** a cada 5 minutos
+- **Detecção de sentimento** bullish/bearish/neutral
+- **Responsivo** (mobile-friendly)
+- **PWA instalável**
 
 ## Tecnologias
 
 - HTML5
 - Tailwind CSS (via CDN)
-- Vanilla JavaScript (fetch RSS)
+- Vanilla JavaScript (fetch RSS via rss2json)
 - GitHub Pages (hospedagem)
-- GitHub Actions (cron opcional para pré-render)
 
 ## Melhorias futuras
 
 - [ ] Backend Node.js para cache e rate-limit
-- [ ] Filtros por categoria
-- [ ] Busca
+- [ ] Filtros por palavra-chave
 - [ ] Alertas personalizados
 - [ ] Mais fontes RSS
+- [ ] Gráficos de sentimento
 
 ---
 
