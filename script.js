@@ -1,53 +1,35 @@
 // Cripto & Global News Dashboard
 // Feito por EmilIA 🌀
 
-// Fontes por categoria
+// Cripto & Global News Dashboard
+// Feito por EmilIA 🌀
+
+// Feeds funcionais (testados com rss2json)
 const FEEDS = {
   bitcoin: [
-    { name: 'Bitcoin.com News', url: 'https://news.bitcoin.com/feed/', icon: '₿' },
-    { name: 'Bitcoin Magazine', url: 'https://bitcoinmagazine.com/.rss', icon: '📒' },
-    { name: 'CoinDesk Bitcoin', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', categoryFilter: 'bitcoin' },
-    { name: 'Blockclock Feed', url: 'https://blockclock.com/rss', icon: '⏰' },
+    { name: 'Bitcoin.com', url: 'https://news.bitcoin.com/feed/', icon: '₿' },
+    { name: 'Bitcoin Magazine', url: 'https://bitcoinmagazine.com/feed/', icon: '📒' },
   ],
   ethereum: [
-    { name: 'Ethereum.org Blog', url: 'https://blog.ethereum.org/feed', icon: '🔷' },
-    { name: 'Etherscan Feed', url: 'https://etherscan.io/feed/latestcontent.xml', icon: '🐍' },
-    { name: 'Cointelegraph ETH', url: 'https://cointelegraph.com/tags/ethereum/rss', icon: '🔵' },
-    { name: 'DEFI Pulse', url: 'https://defipulse.com/feed/', icon: '💱' },
+    { name: 'CoinTelegraph ETH', url: 'https://cointelegraph.com/tags/ethereum/rss', icon: '🔷' },
   ],
   trump: [
-    { name: 'Politico', url: 'https://www.politico.com/rss/politico.xml', icon: '📰' },
-    { name: 'Fox News Politics', url: 'https://moxie.foxnews.com/feedburner/politics', icon: '🦊' },
-    { name: 'The Hill', url: 'https://thehill.com/rss/syndication/2/politics', icon: '🏔️' },
-    { name: 'CNN Politics', url: 'https://rss.cnn.com/rss/cnn_allpolitics.rss', icon: '📺' },
+    // Usaremos classificação por palavras-chave a partir de feeds gerais
   ],
   polymarket: [
-    { name: 'Polymarket Blog', url: 'https://polymarket.com/feed', icon: '🎯' },
-    { name: 'Polygon Blog', url: 'https://polygon.technology/blog/rss', icon: '🔺' },
-    { name: 'Prediction Markets', url: 'https://www.predictionmarkets.com/rss', icon: '🔮' },
-    { name: 'Augur', url: 'https://augur.net/feed/', icon: '🎲' },
+    // Usaremos classificação por palavras-chave
   ],
   kalshi: [
-    { name: 'Kalshi Blog', url: 'https://kalshi.com/blog/rss', icon: '📊' },
-    { name: 'Event Trading', url: 'https://eventstrading.com/feed', icon: '📈' },
-    { name: 'Trading Exchanges', url: 'https://markets.businessinsider.com/rss/markets', icon: '💼' },
-    { name: 'Derivatives', url: 'https://www.derivativesquant.com/feed', icon: '🔢' },
+    // Usaremos classificação por palavras-chave
   ],
   crypto: [
     { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', icon: '🟡' },
-    { name: 'Cointelegraph', url: 'https://cointelegraph.com/rss', icon: '🔵' },
+    { name: 'CoinTelegraph', url: 'https://cointelegraph.com/rss', icon: '🔵' },
     { name: 'CryptoSlate', url: 'https://cryptoslate.com/feed/', icon: '🟣' },
     { name: 'Decrypt', url: 'https://decrypt.co/feed', icon: '⚡' },
-    { name: 'The Block', url: 'https://www.theblockcrypto.com/rss', icon: '🧱' },
-    { name: 'Coin Telegraph', url: 'https://cointelegraph.com/rss', icon: '📡' },
   ],
   global: [
-    { name: 'Bloomberg', url: 'https://www.bloomberg.com/feed/podcast/etf-report.xml', icon: '🏙️' },
-    { name: 'Reuters', url: 'https://www.reutersagency.com/feed/', icon: '📰' },
     { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/news/rssindex', icon: '💹' },
-    { name: 'Google Negócios', url: 'https://news.google.com/rss?output=atom&hl=pt-BR&gl=BR&ceid=BR:pt-419&topic=B', icon: '🌍' },
-    { name: 'MarketWatch', url: 'https://www.marketwatch.com/rss/stocks', icon: '📊' },
-    { name: 'CNBC', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html', icon: '💼' },
   ]
 };
 
@@ -87,14 +69,20 @@ async function refreshAll() {
     const promises = [];
     feedStats = {};
     
-    categories.forEach(cat => {
-      FEEDS[cat].forEach(feed => {
-        promises.push(fetchFeed(feed, cat));
-      });
-    });
+    // Build promises for all feeds across all categories
+    for (const cat of categories) {
+      if (FEEDS[cat]) {
+        FEEDS[cat].forEach(feed => {
+          promises.push(fetchFeed(feed, cat));
+        });
+      }
+    }
 
+    console.log(`Fetching ${promises.length} feeds...`);
     const results = await Promise.all(promises);
-    allNews = results.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    allNews = results.flat();
+    
+    console.log(`Fetched ${allNews.length} raw items before dedup`);
 
     // Remove duplicates by title (approximate)
     const unique = [];
@@ -108,9 +96,12 @@ async function refreshAll() {
     }
     allNews = unique;
 
+    console.log(`After dedup: ${allNews.length} items`);
+
     updateStats();
     renderNews('all');
     updateTimestamp();
+    document.getElementById('status').textContent = '🟢 Online';
 
   } catch (error) {
     console.error('Erro ao buscar feeds:', error);
@@ -122,28 +113,49 @@ async function refreshAll() {
 
 async function fetchFeed(feed, defaultCategory) {
   try {
-    const response = await fetch(`${RSE_PROXY}${encodeURIComponent(feed.url)}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    
+    const response = await fetch(`${RSE_PROXY}${encodeURIComponent(feed.url)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      console.warn(`HTTP ${response.status} for ${feed.name}`);
+      return [];
+    }
+    
     const data = await response.json();
-    if (data.status !== 'ok') return [];
+    clearTimeout(timeoutId);
+    
+    if (data.status !== 'ok') {
+      console.warn(`Feed ${feed.name} status not ok: ${data.message || 'unknown'}`);
+      return [];
+    }
+    
+    if (!Array.isArray(data.items) || data.items.length === 0) {
+      return [];
+    }
     
     return data.items.map(item => {
-      const title = item.title;
+      const title = item.title || '';
       const category = determineCategory(title, feed, defaultCategory);
       
       return {
         title: title,
-        link: item.link,
-        pubDate: item.pubDate,
-        description: stripHtml(item.description || item.contentSnippet || '').substring(0, 200) + '...',
+        link: item.link || '#',
+        pubDate: item.pubDate || new Date().toISOString(),
+        description: stripHtml(item.description || item.contentSnippet || '').substring(0, 200) + (item.description || item.contentSnippet ? '...' : ''),
         author: item.author || feed.name,
         source: feed.name,
         icon: feed.icon || getIconForCategory(category),
         category: category,
         sentiment: detectSentiment(title)
       };
-    });
+    }).filter(item => item.title); // remove empty titles
   } catch (e) {
-    console.warn(`Falha no feed ${feed.name}:`, e);
+    console.warn(`Falha no feed ${feed.name}:`, e.message);
     return [];
   }
 }
