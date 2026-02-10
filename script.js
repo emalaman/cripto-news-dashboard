@@ -18,10 +18,10 @@ const FEEDS = {
     { name: 'BBC News US & Canada', url: 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml', icon: '🌐' },
   ],
   polymarket: [
-    // Classificação via palavras-chave
+    // Classificação via palavras-chave (Polymarket é nicho, mas será pego por keywords)
   ],
   kalshi: [
-    // Classificação via palavras-chave
+    // Classificação via palavras-chave (Kalshi é nicho também)
   ],
   crypto: [
     { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', icon: '🟡' },
@@ -214,8 +214,8 @@ function determineCategory(title, feed, defaultCategory) {
     bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner', 'bitcoin price', 'btc price', 'bitcoin mining', 'bitcoin halving'],
     ethereum: ['ethereum', 'eth', 'vitalik', 'gas fee', 'defi', 'layer2', 'layer 2', 'rollup', 'zk', 'zero knowledge', 'eip', 'evm', 'ether', 'eth2', 'ethereum price', 'eth price', 'ethereum 2.0', 'merge'],
     trump: ['trump', 'donald', 'gop', 'republican', 'maga', 'presidente', 'casa branca', 'eleição 2024', 'donald j trump', 'trump campaign', 'president trump', 'trump administration', 'trump news', 'former president', 'republican party', 'gop party', 'conservative', 'right wing', 'immigration', 'border wall', 'tariffs', 'trade war'],
-    polymarket: ['polymarket', 'polygon', 'matic', 'prediction', 'aposta', 'mercado de previsão', 'prediction market', 'polymarkets', 'polygon labs', 'matic network', 'betting market', 'event betting', 'prediction platform'],
-    kalshi: ['kalshi', 'event trading', 'mercado de eventos', 'kalshi markets', 'trading de eventos', 'event derivatives', 'event futures', 'kalshi exchange', 'regulated prediction'],
+    polymarket: ['polymarket', 'polygon', 'matic', 'prediction', 'aposta', 'mercado de previsão', 'prediction market', 'polymarkets', 'polygon labs', 'matic network', 'betting market', 'event betting', 'prediction platform', 'forecast', 'betting', 'odds', 'event contracts', 'market prediction', 'wagering', 'gambling', 'trading platform', 'crypto prediction'],
+    kalshi: ['kalshi', 'event trading', 'mercado de eventos', 'kalshi markets', 'trading de eventos', 'event derivatives', 'event futures', 'kalshi exchange', 'regulated prediction', 'event contracts', 'market design', 'event probability', 'event outcomes', 'trading events', 'prediction platform', 'event-based trading'],
     crypto: ['crypto', 'blockchain', 'altcoin', 'web3', 'nft', 'token', 'decentralized', 'centralized exchange', 'cex', 'dex', 'dao', 'smart contract', 'web 3', 'cripto', 'criptomoeda', 'altcoins', 'stablecoin', 'usdt', 'usdc', 'solana', 'cardano', 'polkadot', 'xrp', 'doge', 'shiba', 'memecoin'],
     global: [] 
   };

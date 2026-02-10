@@ -88,14 +88,30 @@
     body.light-mode .text-gray-300 { color: #4b5563 !important; }
     body.light-mode .border-dark-700 { border-color: #e5e7eb !important; }
     body.light-mode .border-dark-800 { border-color: #d1d5db !important; }
+    #themeBtn {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: white;
+    }
+    body.light-mode #themeBtn {
+      background-color: #e5e7eb;
+      border-color: #d1d5db;
+      color: #1f2937;
+    }
+    #themeBtn:hover {
+      background-color: #4b5563;
+    }
+    body.light-mode #themeBtn:hover {
+      background-color: #d1d5db;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-dark-900">
   <div id="app" class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- Header -->
-    <header class="mb-10 text-center">
-      <div class="flex justify-end mb-4">
-        <button onclick="toggleTheme()" id="themeBtn" class="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 transition text-white">
+    <header class="mb-10 text-center relative">
+      <div class="absolute top-0 right-0">
+        <button onclick="toggleTheme()" id="themeBtn" class="px-3 py-1 text-sm rounded-lg transition">
           🌙 Dark
         </button>
       </div>
