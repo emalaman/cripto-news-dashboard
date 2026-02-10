@@ -8,7 +8,7 @@ const FEEDS = {
     { name: 'Bitcoin Magazine', url: 'https://bitcoinmagazine.com/feed/', icon: '📒' },
   ],
   ethereum: [
-    // No specific feeds – will be classified via keywords from general feeds
+    // Classified via keywords from general feeds
   ],
   trump: [
     { name: 'NYT Politics', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml', icon: '🗽' },
@@ -207,16 +207,29 @@ function determineCategory(title, feed, defaultCategory) {
   const keywords = {
     bitcoin: ['bitcoin', 'btc', 'satoshi', 'lightning', 'halving', '₿', 'bitcoins', 'segwit', 'taproot', 'mineiro', 'mineração bitcoin', 'bitcoiner', 'bitcoin price', 'btc price', 'bitcoin mining', 'bitcoin halving', 'bitcoin etf', 'spot bitcoin'],
     ethereum: [
-      'ethereum', 'eth', 'vitalik', 'gas fee', 'gas price', 'defi', 'layer2', 'layer 2', 
-      'rollup', 'zk', 'zero knowledge', 'eip', 'evm', 'ether', 'eth2',
-      'ethereum price', 'eth price', 'ethereum 2.0', 'merge', 'the merge',
-      'beacon chain', 'proof of stake', 'pos', 'gwei', 'gas', 'eth validator',
-      'ethereum classic', 'etc', 'ethereum max', 'ethereum network', 'eth validator',
-      'ethereum foundation', 'ethereum client', 'geth', 'nethermind', 'besu',
-      'ethereum roadmap', 'ethereum scalability', 'ethereum upgrade', 'shapella',
-      'dencun', 'proto-danksharding', 'eip-4844', 'blob', 'blob transaction',
-      'account abstraction', 'erc-4337', 'smart contract wallet', 'eth global',
-      'ethereum development', 'solidity', 'vyper', 'ethereum virtual machine'
+      'ethereum', 'eth', 'vitalik', 'gas fee', 'gas price', 'gas token', 'defi', 'defis',
+      'layer2', 'layer 2', 'l2', 'rollup', 'rollups', 'zk', 'zero knowledge', 'eip', 'evm',
+      'ether', 'eth2', 'ethereum 2.0', 'merge', 'the merge', 'beacon chain', 'beaconchain',
+      'proof of stake', 'pos', 'gwei', 'gas limit', 'validator', 'validators', 'staking',
+      'ethereum classic', 'etc', 'ethereum max', 'ethereum network', 'ethereum client',
+      'geth', 'nethermind', 'besu', 'erigon', 'ethereum roadmap', 'ethereum scalability',
+      'ethereum upgrade', 'shapella', 'dencun', 'proto-danksharding', 'danksharding',
+      'eip-4844', 'eip4844', 'blob', 'blob transaction', 'blob pool',
+      'account abstraction', 'account abstract', 'erc-4337', 'erc4337', 'smart contract wallet',
+      'eth global', 'ethereum foundation', 'ethereum developer', 'ethereum devcon',
+      'solidity', 'vyper', 'huff', 'ethereum virtual machine', 'evm', 'ewasm',
+      'ethereum transaction', 'ethereum block', 'ethereum hash', 'ethereum address',
+      'eth price', 'ethereum price', 'eth market', 'ethereum market', 'eth trading',
+      'ethereum futures', 'ethereum options', 'ethereum derivatives',
+      'ethereum nft', 'nft ethereum', 'erc-721', 'erc-1155', 'erc20', 'erc20 token',
+      'uniswap', 'sushiswap', 'curve', 'balancer', 'aave', 'compound', 'makerdao',
+      'lido', 'rocketpool', 'stakewise', 'ethereum staking', 'eth staking',
+      'optimism', 'arbitrum', 'zksync', 'starknet', 'scroll', 'base', 'linea', 'manta',
+      'polygon', 'matic', 'polygon pos', 'polygon zkevm', 'polygon lhs', 'polygon 2.0',
+      'celo', 'avalanche', 'avax', 'efp', 'ethereum fair', 'ethereum Classic', 'etc',
+      'ethereum energy', 'ethereum sustainability', 'ethereum carbon', 'ethereum pow',
+      'ethereum mining', 'eth mining', 'ethereum asic', 'ethereum miner',
+      'ethereum governance', 'ethereum dao', 'ethereum vote', 'ethereum proposal'
     ],
     trump: [
       'trump', 'donald', 'gop', 'republican', 'maga', 'presidente', 
