@@ -56,14 +56,14 @@ function startAutoRefresh() {
 function toggleAutoRefresh() {
   autoRefresh = !autoRefresh;
   const btn = document.getElementById('autoBtn');
-  btn.textContent = autoRefresh ? '⏸️ Auto: ON' : '▶️ Auto: OFF';
+  btn.textContent = autoRefresh ? '⏸️ Auto-refresh: ON' : '▶️ Auto-refresh: OFF';
   btn.classList.toggle('text-neon-purple', autoRefresh);
   btn.classList.toggle('text-gray-400', !autoRefresh);
 }
 
 async function refreshAll() {
   setLoading(true);
-  document.getElementById('status').textContent = '🔄 Buscando...';
+  document.getElementById('status').textContent = '🔄 Updating...';
   
   try {
     const categories = ['bitcoin', 'ethereum', 'trump', 'polymarket', 'kalshi', 'crypto', 'global'];
@@ -104,7 +104,7 @@ async function refreshAll() {
 
   } catch (error) {
     console.error('Erro ao buscar feeds:', error);
-    document.getElementById('status').textContent = '❌ Erro';
+    document.getElementById('status').textContent = '❌ Error';
   } finally {
     setLoading(false);
   }
@@ -274,7 +274,7 @@ function renderNews(filter) {
       <p class="text-gray-400 text-sm mb-4 line-clamp-3">${news.description}</p>
       <div class="flex items-center justify-between text-xs text-gray-500">
         <span>⏱️ ${timeAgo}</span>
-        <span class="text-neon-blue hover:underline">Ler mais →</span>
+        <span class="text-neon-blue hover:underline">Read more →</span>
       </div>
     `;
 
@@ -306,18 +306,18 @@ function highlightKeywords(text, category) {
 function getTimeAgo(date) {
   const seconds = Math.floor((new Date() - date) / 1000);
   const intervals = [
-    { label: 'ano', seconds: 31536000 },
-    { label: 'mês', seconds: 2592000 },
-    { label: 'dia', seconds: 86400 },
+    { label: 'year', seconds: 31536000 },
+    { label: 'month', seconds: 2592000 },
+    { label: 'day', seconds: 86400 },
     { label: 'h', seconds: 3600 },
     { label: 'min', seconds: 60 },
-    { label: 'seg', seconds: 1 }
+    { label: 'sec', seconds: 1 }
   ];
   for (const i of intervals) {
     const count = Math.floor(seconds / i.seconds);
     if (count >= 1) return `${count} ${i.label}${count > 1 ? 's' : ''}`;
   }
-  return 'agora';
+  return 'now';
 }
 
 function updateStats() {
