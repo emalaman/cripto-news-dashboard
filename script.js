@@ -40,17 +40,46 @@ let refreshInterval;
 let allNews = [];
 let feedStats = {};
 
+// Theme management
+let isDarkMode = true;
+
 function init() {
+  // Load theme from localStorage
+  const savedTheme = localStorage.getItem('dashboard-theme');
+  if (savedTheme === 'light') {
+    isDarkMode = false;
+    document.body.classList.add('light-mode');
+    updateThemeButton();
+  }
+  
   setupTabs();
   startAutoRefresh();
   refreshAll();
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  if (isDarkMode) {
+    document.body.classList.remove('light-mode');
+  } else {
+    document.body.classList.add('light-mode');
+  }
+  localStorage.setItem('dashboard-theme', isDarkMode ? 'dark' : 'light');
+  updateThemeButton();
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.textContent = isDarkMode ? '☀️ Light' : '🌙 Dark';
+  }
 }
 
 function startAutoRefresh() {
   clearInterval(refreshInterval);
   refreshInterval = setInterval(() => {
     if (autoRefresh) refreshAll();
-  }, 5 * 60 * 1000); // 5 minutos
+  }, 5 * 60 * 1000); // 5 minutes
 }
 
 function toggleAutoRefresh() {
