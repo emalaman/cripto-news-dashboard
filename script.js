@@ -204,7 +204,17 @@ function determineCategory(title, feed, defaultCategory) {
   }
   
   // Priority 2: Direct Ethereum/ETH detection (most reliable)
-  if (lower.includes('ethereum') || lower.includes(' eth ') || lower.startsWith('eth ') || lower.endsWith(' eth') || lower.includes(' eth,') || lower.includes(' eth.')) {
+  if (
+    lower.includes('ethereum') || 
+    lower.includes(' eth ') || 
+    lower.startsWith('eth ') || 
+    lower.endsWith(' eth') || 
+    lower.includes(' eth,') || 
+    lower.includes(' eth.') ||
+    lower.includes(' ether ') ||
+    lower.startsWith('ether ') ||
+    lower.endsWith(' ether')
+  ) {
     console.log(`[Category] Title "${title.substring(0, 50)}..." -> ethereum (direct match)`);
     return 'ethereum';
   }
@@ -251,7 +261,7 @@ function determineCategory(title, feed, defaultCategory) {
       'centralized exchange', 'cex', 'dex', 'dao', 'smart contract', 'web 3',
       'cripto', 'criptomoeda', 'altcoins', 'stablecoin', 'usdt', 'usdc',
       'solana', 'cardano', 'polkadot', 'xrp', 'doge', 'shiba', 'memecoin',
-      'bitcoin', 'ethereum', 'ripple', 'chainlink', 'avalanche', 'polygon',
+      'ripple', 'chainlink', 'avalanche',
       'arbitrum', 'optimism', 'base', 'zksync', 'starknet', 'scroll',
       'crypto regulation', 'sec crypto', 'cftc', 'binance', 'coinbase',
       'kraken', 'okx', 'bybit', 'crypto lending', 'crypto borrowing',
